@@ -1,0 +1,40 @@
+version: '3'
+services:
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: example
+      POSTGRES_USER: e2e_user
+      POSTGRES_DB: e2e_db
+    networks:
+      - e2e_net
+    ports:
+      - 127.0.0.1:5432:5432
+    volumes:
+      - data:/var/lib/postgresql/data
+
+  webservice:
+    build: e2e_webservice/.
+    restart: always
+    depends_on:
+      - db
+    networks:
+      - e2e_net
+
+  app:
+    build: .
+    restart: always
+    ports:
+      - 127.0.0.1:80:80
+    depends_on:
+      - db
+      - webservice
+    networks:
+      - e2e_net
+
+volumes:
+  data:
+
+networks:
+  e2e_net:
